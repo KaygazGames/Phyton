@@ -25,10 +25,19 @@
         let pyodide;
 
         async function loadPyodideAndPackages() {
-            pyodide = await loadPyodide();
-            await pyodide.loadPackage("micropip");  // micropip'i yükle
-            terminal.innerHTML += "<p>Pyodide ve micropip yüklendi.</p>";
-            pyodideReady = true;
+            try {
+                pyodide = await loadPyodide();
+                terminal.innerHTML += "<p>Pyodide yüklendi.</p>";
+
+                // micropip'i yükleme
+                await pyodide.loadPackage("micropip");
+                await pyodide.runPythonAsync("import micropip"); // Python içinde de import et
+                terminal.innerHTML += "<p>micropip başarıyla yüklendi.</p>";
+
+                pyodideReady = true;
+            } catch (error) {
+                terminal.innerHTML += `<p style='color:red;'>Hata: ${error}</p>`;
+            }
         }
 
         loadPyodideAndPackages();
