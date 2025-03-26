@@ -27,6 +27,11 @@
             terminal.innerHTML += "<p>Pyodide yüklendi. Python kodlarını çalıştırabilirsiniz.</p>";
             pyodideReady = true;
         }
+        async function loadPyodideAndPackages() {
+            pyodide = await loadPyodide();
+            await pyodide.loadPackage("micropip");  // micropip'i yükle
+            terminal.innerHTML += "<p>Pyodide ve micropip yüklendi.</p>";
+        }
 
         loadPyodideAndPackages();
 
