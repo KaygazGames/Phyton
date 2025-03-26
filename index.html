@@ -16,39 +16,42 @@
     <h1>Python Terminal</h1>
     <div id="terminal"></div>
     <input type="text" id="input" autofocus placeholder="Python kodu girin...">
-    <button onclick="runPythonCode()">Gönder</button>
+    <button id="runButton" onclick="runPythonCode()" disabled>Yükleniyor...</button>
 
     <script>
         let terminal = document.getElementById("terminal");
         let input = document.getElementById("input");
-        let pyodideReady = false;
+        let runButton = document.getElementById("runButton");
         let pyodide;
 
         async function loadPyodideAndPackages() {
             try {
                 pyodide = await loadPyodide();
-                terminal.innerHTML += "<p>Pyodide yüklendi.</p>";
+                terminal.innerHTML += "<p>✅ Pyodide yüklendi.</p>";
 
-                // micropip'i yükleme
+                // micropip yükleme
                 await pyodide.loadPackage("micropip");
-                await pyodide.runPythonAsync("import micropip"); // Python içinde de import et
-                terminal.innerHTML += "<p>micropip başarıyla yüklendi.</p>";
+                await pyodide.runPythonAsync("import micropip"); // Python içinde import et
+                terminal.innerHTML += "<p>✅ micropip başarıyla yüklendi.</p>";
 
-                pyodideReady = true;
+                runButton.disabled = false;
+                runButton.innerText = "Gönder";
             } catch (error) {
-                terminal.innerHTML += `<p style='color:red;'>Hata: ${error}</p>`;
+                terminal.innerHTML += `<p style='color:red;'>❌ Hata: ${error}</p>`;
             }
         }
 
         loadPyodideAndPackages();
 
         async function runPythonCode() {
-            if (!pyodideReady) {
-                terminal.innerHTML += "<p style='color:red;'>Hata: Pyodide henüz yüklenmedi!</p>";
+            if (!pyodide) {
+                terminal.innerHTML += "<p style='color:red;'>❌ Hata: Pyodide yüklenmedi!</p>";
                 return;
             }
 
-            let code = input.value;
+            let code = input.value.trim();
+            if (code === "") return;
+
             terminal.innerHTML += `<p>> ${code}</p>`;
             input.value = "";
 
@@ -56,7 +59,7 @@
                 let result = await pyodide.runPythonAsync(code);
                 terminal.innerHTML += `<p>${result}</p>`;
             } catch (error) {
-                terminal.innerHTML += `<p style="color:red;">Hata: ${error}</p>`;
+                terminal.innerHTML += `<p style="color:red;">❌ Hata: ${error}</p>`;
             }
 
             terminal.scrollTop = terminal.scrollHeight;
